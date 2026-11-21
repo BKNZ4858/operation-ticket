@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>高压电工科目二 · 操作票练习</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="gate" class="gate">
+    <h2>请登录后进入练习</h2>
+    <input id="gateUser" type="text" placeholder="姓名" autocomplete="off" />
+    <input id="gatePwd" type="password" placeholder="密码" autocomplete="off" />
+    <button id="gateBtn">登录</button>
+    <p class="gate-hint">用户名：本人姓名<br>密码：身份证后四位 + 手机号后四位（共8位数字）</p>
+    <p id="gateMsg" class="gate-msg"></p>
+  </div>
+
+  <div id="app" class="app" style="display:none"></div>
+
+  <script src="questions.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
