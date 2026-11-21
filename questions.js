@@ -23,7 +23,7 @@ const QUESTIONS = [
 
 
 {
-  id: 'q002',
+  id: 'q003',
   title: 'K22-10kV高压成套配电装置的巡视检查',
   description: '请逐题作答，单选选一个，多选选多个',
   // 标记这是"选择题组"，不是排序题
@@ -220,7 +220,7 @@ const QUESTIONS = [
 
 
   {
-    id: 'q003',
+    id: 'q002',
     title: 'K21-10KV考核1#线高压开关柜送电操作（开关柜）',
     description: '请按正确顺序选出操作项目',
     correctSequence: [
