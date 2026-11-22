@@ -1,4 +1,4 @@
-// app.js — 多用户登录 + 排序题 + 选择题组（支持图片题按图取答案、展示题不计分）
+// app.js — 多用户登录 + 排序题 + 选择题组 + 限时开关 + localStorage 弱限制
 (function () {
   'use strict';
 
@@ -7,8 +7,6 @@
   // ============================================================
   const ACCOUNTS = [
     // { "u": "张三", "s": "...", "h": "..." },
-
-
 {
     "u": "张亮",
     "s": "Mw+nHwWl1IImW6t2MNfm4g==",
@@ -27,12 +25,12 @@
   ];
 
   // ============================================================
-  // 【第 2 处替换】练习界面密文：由 encrypt.html 用 CONTENT_KEY 加密
+  // 【第 2 处替换】练习界面密文：由新版 encrypt.html 用 CONTENT_KEY 加密
   // ============================================================
   const PRACTICE_ENCRYPTED = {
-      "salt": "g5hI9MLHlIXGL8nC80qWzQ==",
-  "iv": "L7b4OpWMgrotQ6Q5",
-  "data": "gOtcEtL8MEdoYuZlHbbjIiQjbQLesqJxDigBpZZ8v5kCmZ2cGNraqR+AZCWaYBDXtYwLf3u/uzgGWssDYAVUHgSb8AL5dXM0XtnrCEdxFZ25aogvstKYVDuPnutW2ijMejCXaTwCBkYmMsRvRE7EfAmmX2XYobBhonRHM8ygPAd2Q0hcZynEfpzgxDsA34DrzzRu9Y5i5AQDHsvhlnhmRIUqMDdSo84gMoStjuk99zYp97NdC8fQ2UhK3LJ5rPbCxPOElu9M23Fv/93l4oLI5Yn56WY7ihWf2uIVyn7+WaY6Pic4lQNYy8WdU4HfB2/DuJRNtwPe5sstxzMw0HA/LP92OpeZ7R5QRyiADWR5rC3kZSBBVjkO0zJtoGePW38Yt2OFiJha8FCvjhc0OJmdP83c0ZtqRQqciUjSx+7s9wt/dLwiP83DCrmat5pSx1/e4+jWNQWHMY9rka+N3vtNestpLwlFoDc1qbY/6Jfz6dRaNCOUKp6V6XP6GlhsCgHn2FLu1mmwgN/5RkoGt3tVJND5niLx1MhiBa8ACLE2tiWZdgEvMWpdIOf+kJRiDs+2c9aq/mix8xGyYQog8o5pwsjo8BBWDfJkWFqFR2vBCVywNE3yRxDaTpRJux2OVVh3uz/6ifpTr/E+auCMvvEA6KqgE4ekemATyKy7g8Mj6ZHEB9BufjamoFjZ7Ii08onUR0sUkeqUiLmyG5JT5pPYWCUxX7eAkYGT6dtF0R1bqK/hfN0L3bv6h2e064+dbuWzRS/3taO2gCtQuhmQRF1MUX6ehR0GGrpZAjOU1ngaNI6zFzxqK58+4zqqVMgDTDMb5GZElTRk8Hj2aMh2yScvk5gbTgkD7PikVVwQW3j0AES9HhpIJpvhoG2zomEthrTGGCl1q0KlvfpMrTqcNazklmuE8XiyY4R9LmU4V0lbVfzc0ux4n+NE0ZpTGLWSW6J4dfY17wSwn7pVqeq5N7cR9vSQMpi8nmjIqJazvdkAxn1EGhnI4IlbxKGaXwxWIn9jaUBEC3Bok9whCrxMp34="
+  "salt": "Bl8ZOfhXquAOzJTgdypkEA==",
+  "iv": "0mMrnD6PSPSXDHsd",
+  "data": "Qgh27bmr3Jp/le1acE/+Cjuar91sfyB3IZGpvXQ6UNZqrlXYhORYXqt08ZqCtNgeLx6vAhNtgCpq/BppNAub1gwMwA/nmDRUCBW71JPC9Ni8bsCswKHX2u04/0HAeZEWvx5PZmRfUyDnAQ5CH8HxeC1f4rCm6zbJpMdN6YO17vFfMqr0eiNJuF6khPvTEAoj8D1VeU76LvLLzloMVPopEBlNMVCSRRchQkR7MYaluSM91r34LK5joigHvTx0Qpl04kMRq/JmkjWIuSRL+8KwgwEmb9T824m52emDjI0zn5tI83KHZgPNOmnW6q7mYILg6FAlfBhh60EKuSiR9cTICsFsUFw+QM2C4t5mNcjVoJiz08z8jfiaFsszltEyw+HgTmS7WsZwe91mcDR/0xfdh16NxXA7dTsR39Fp5j3VCoL1vawj1vocnouIGXhbNgPiRSGUn4i2y/ufDRjL5Gppo8fDEac+TwGmLpofPUmfBdbS9sg+EJkFwQiCoMhE0TM6YUeMFicqqbFY7EWwKeTGgisaaqrqZu7QBPwgRaL4l7uPEAl3KtJ8VYjjJ9GbyQovdLJxDTF+OMicB97NtaBnaqGMuYU2cdH7Nb8TBLYUrL+TDvCXfiDZWKAKB5qrCeLA53Ppf0vMSP1BeIEcIP2Z0cVL2+b//d6mkzG48F8KuS2odUE946QQ9SxWxim8xzaXxFwyrOetKNVUzdMLMyvOAp9INRf+NUFOIs2YjqCN7e13ZT0s4zhVQDzF9pMxrv+GmfcO87oHXtaO0f3ELazprst+NTYJSYvUN2allS0GK1JYCu5MOVaiqdSyac3KonGgbSVsFHZ7tXhPI7ZB3VAjWQLp2hoCNHdZQyFFxSkZkQRcvfivTZkhWlxCgMQxkePjF2qSPip9vPR5OEUmCGV8jza9iIg/sKKgjtK9y0x0Y0vANA4UptsA2KtHz4jNa0VsqK4MvcOqn3ueVueZK2pUAfsKQ8rOGNj5fMXQb+MCUK7B/piw35Xa+EcP+QUAeg0fuUbjTS4JzCbcS4LErEI6gRDM3zpnoZV81HBHYCu9JFU5css9UYfZm7BLQsQdBXwigQ+LPvZA0dSXOIx+etgoU/xtZlZOqk7brUXXc9xNVlJy3bVuNMdX1gVpM5mLEBHPtUDoWkDj8GSKsdUj0r9WaM1Hv3LD57crp8X27QU4XR8X3SYiF6YgbpykMigQstypUvPhPOJKuYLMdimU6pR8yPjo+5CnFbaQi8WYKVlqmhJwGxct68dVb4XJzq7dx2E3SnzwAXDTTnSCFiiej09JXdXSYWmbf1iM7N038FvyC7lLYeOnfeggU3WlV8xdXpncnLYFPrGA21dMQLu4FCcguhRaHKzlU6b6ng1yw2h51xxb40qup0f9th9Dy4o1HJHY84Nz0+BCgxg4QeLdE/Shfg=="
   };
 
   const CONTENT_KEY = 'practice-content-2024';
@@ -107,12 +105,60 @@
   }
 
   // ============================================================
+  // localStorage 弱限制：同一浏览器只能一个账号登录
+  // ============================================================
+  const LS_USER = 'ot_logged_user';
+  const LS_TIME = 'ot_login_time';
+  const LOGIN_EXPIRE = 60 * 60 * 1000; // 1 小时过期
+
+  function checkExistingLogin() {
+    const u = localStorage.getItem(LS_USER);
+    const t = +localStorage.getItem(LS_TIME) || 0;
+    if (u && Date.now() - t < LOGIN_EXPIRE) {
+      return u;
+    }
+    // 过期则清除
+    if (u) {
+      localStorage.removeItem(LS_USER);
+      localStorage.removeItem(LS_TIME);
+    }
+    return null;
+  }
+
+  function markLogin(username) {
+    localStorage.setItem(LS_USER, username);
+    localStorage.setItem(LS_TIME, Date.now());
+  }
+
+  function clearLogin() {
+    localStorage.removeItem(LS_USER);
+    localStorage.removeItem(LS_TIME);
+  }
+
+  // ============================================================
   // 登录事件
   // ============================================================
   const gateBtn = document.getElementById('gateBtn');
   const gateUser = document.getElementById('gateUser');
   const gatePwd = document.getElementById('gatePwd');
   const gateMsg = document.getElementById('gateMsg');
+
+  // 页面加载时检查是否已有登录
+  const existing = checkExistingLogin();
+  if (existing) {
+    const gate = document.getElementById('gate');
+    gate.innerHTML = `
+      <h2>该浏览器已有账号登录</h2>
+      <p style="margin:12px 0;color:#555;">当前登录：<strong>${existing}</strong></p>
+      <p style="margin-bottom:16px;color:#888;font-size:13px;">如需切换账号，请先退出登录</p>
+      <button id="logoutBtn" style="width:100%;padding:10px;background:#d33;color:#fff;border:none;border-radius:6px;font-size:15px;cursor:pointer;">退出登录</button>
+    `;
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      clearLogin();
+      location.reload();
+    });
+    return; // 不再绑定登录事件
+  }
 
   gateBtn.addEventListener('click', async () => {
     const username = gateUser.value.trim();
@@ -136,6 +182,9 @@
       return;
     }
 
+    // 登录成功，写入 localStorage 标记
+    markLogin(username);
+
     const unlocked = await unlockPractice();
     gateBtn.disabled = false;
     if (!unlocked) {
@@ -151,18 +200,21 @@
   });
 
   // ============================================================
-  // 练习逻辑（排序题 + 选择题组）
+  // 练习逻辑（排序题 + 选择题组 + 限时开关）
   // ============================================================
   function startApp() {
     let currentQ = null;
-    // 排序题状态
     let poolItems = [];
     let ticketItems = [];
     let idSeq = 0;
     let submitted = false;
     let dragId = null;
-    // 选择题组状态：每题 { imgIndex, optionOrder:[原始下标], userAnswer }
     let choiceState = [];
+    // 限时
+    let timerId = null;
+    let remaining = 0;
+    const TIME_LIMIT = 180;
+    let timerEnabled = true;
 
     const $ = (s) => document.querySelector(s);
     const qSelect = $('#questionSelect');
@@ -178,6 +230,22 @@
     if (typeof QUESTIONS === 'undefined' || !Array.isArray(QUESTIONS) || QUESTIONS.length === 0) {
       if (qTitle) qTitle.textContent = '题库未加载，请检查 questions.js';
       return;
+    }
+
+    // 绑定限时开关
+    const timerToggle = document.getElementById('timerToggle');
+    if (timerToggle) {
+      timerEnabled = timerToggle.checked;
+      timerToggle.addEventListener('change', () => {
+        timerEnabled = timerToggle.checked;
+        if (!timerEnabled) {
+          stopTimer();
+          const el = document.getElementById('timerBox');
+          if (el) { el.textContent = '限时已关闭'; el.style.color = '#888'; }
+        } else {
+          startTimer();
+        }
+      });
     }
 
     if (qSelect) {
@@ -197,6 +265,42 @@
       loadQuestion(idx);
     });
 
+    // ---------------- 计时 ----------------
+    function startTimer() {
+      stopTimer();
+      if (!timerEnabled) {
+        const el = document.getElementById('timerBox');
+        if (el) { el.textContent = '限时已关闭'; el.style.color = '#888'; }
+        return;
+      }
+      remaining = TIME_LIMIT;
+      updateTimerDisplay();
+      timerId = setInterval(() => {
+        remaining--;
+        updateTimerDisplay();
+        if (remaining <= 0) {
+          stopTimer();
+          if (!submitted) {
+            if (currentQ.kind === 'choice-set') gradeChoiceSet();
+            else gradeSort();
+          }
+        }
+      }, 1000);
+    }
+    function stopTimer() {
+      if (timerId) { clearInterval(timerId); timerId = null; }
+    }
+    function updateTimerDisplay() {
+      const el = document.getElementById('timerBox');
+      if (!el) return;
+      if (!timerEnabled) { el.textContent = '限时已关闭'; el.style.color = '#888'; el.style.fontWeight = 'normal'; return; }
+      const m = Math.floor(remaining / 60);
+      const s = remaining % 60;
+      el.textContent = `剩余时间：${m}:${String(s).padStart(2, '0')}`;
+      el.style.color = remaining <= 30 ? '#d33' : '#333';
+      el.style.fontWeight = remaining <= 30 ? 'bold' : 'normal';
+    }
+
     // ---------------- 载入题目 ----------------
     function loadQuestion(index) {
       if (!QUESTIONS[index]) return;
@@ -209,12 +313,10 @@
       resultBox.innerHTML = '';
 
       if (currentQ.kind === 'choice-set') {
-        // 隐藏排序题两栏及其按钮
         if (workspace) workspace.style.display = 'none';
         const ticketActions = document.querySelector('.ticket-actions');
         if (ticketActions) ticketActions.style.display = 'none';
 
-        // 初始化选择题状态（imgIndex 在此确定，判分时复用）
         choiceState = currentQ.subQuestions.map((sub) => {
           const isImage = sub.type && sub.type.indexOf('image') === 0;
           let imgIndex = 0;
@@ -235,7 +337,6 @@
         });
         renderChoiceSet();
       } else {
-        // 排序题
         if (workspace) workspace.style.display = '';
         const ticketActions = document.querySelector('.ticket-actions');
         if (ticketActions) ticketActions.style.display = '';
@@ -246,6 +347,8 @@
         ticketItems = [];
         renderSort();
       }
+
+      startTimer();
     }
 
     function shuffle(arr) {
@@ -256,7 +359,7 @@
       return arr;
     }
 
-    // ---------------- 排序题渲染（池不减少） ----------------
+    // ---------------- 排序题渲染 ----------------
     function renderSort() {
       poolList.innerHTML = '';
       poolItems.forEach((item) => {
@@ -280,12 +383,27 @@
         li.innerHTML = `
           <span class="idx">${idx + 1}</span>
           <span class="txt">${escapeHtml(item.text)}</span>
+          <span class="move" title="上移">↑</span>
+          <span class="move" title="下移">↓</span>
           <span class="del" title="删除">×</span>
         `;
         li.querySelector('.del').addEventListener('click', (e) => {
           e.stopPropagation();
           if (submitted) return;
           ticketItems = ticketItems.filter((i) => i.id !== item.id);
+          renderSort();
+        });
+        const moves = li.querySelectorAll('.move');
+        moves[0].addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (submitted || idx === 0) return;
+          [ticketItems[idx - 1], ticketItems[idx]] = [ticketItems[idx], ticketItems[idx - 1]];
+          renderSort();
+        });
+        moves[1].addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (submitted || idx === ticketItems.length - 1) return;
+          [ticketItems[idx + 1], ticketItems[idx]] = [ticketItems[idx], ticketItems[idx + 1]];
           renderSort();
         });
         attachDragEvents(li);
@@ -334,7 +452,6 @@
         const isNoAnswer = !!sub.noAnswer;
         const isMulti = sub.type && sub.type.indexOf('multi') !== -1;
 
-        // 题号 + 题干（noAnswer 不标单选/多选）
         const stem = document.createElement('div');
         stem.style.cssText = 'font-weight:bold;margin-bottom:8px;';
         let stemText = `第 ${sub.no} 题`;
@@ -343,7 +460,6 @@
         stem.textContent = stemText;
         wrap.appendChild(stem);
 
-        // 图片
         if (sub.type && sub.type.indexOf('image') === 0) {
           const imgs = Array.isArray(sub.images) ? sub.images : [];
           if (imgs.length) {
@@ -362,7 +478,6 @@
           }
         }
 
-        // 选项（noAnswer 不渲染）
         if (!isNoAnswer) {
           st.optionOrder.forEach((origIdx) => {
             const label = document.createElement('label');
@@ -394,7 +509,6 @@
         box.appendChild(wrap);
       });
 
-      // 底部提交/重置
       const actions = document.createElement('div');
       actions.style.cssText = 'margin-top:16px;display:flex;gap:10px;';
       const bSubmit = document.createElement('button');
@@ -416,11 +530,13 @@
     // ---------------- 提交 ----------------
     function onSubmit() {
       if (submitted) return;
+      stopTimer();
       if (currentQ.kind === 'choice-set') gradeChoiceSet();
       else gradeSort();
     }
 
     function gradeSort() {
+      stopTimer();
       if (ticketItems.length === 0) { alert('请至少选择一个操作项目！'); return; }
       submitted = true;
       btnSubmit.disabled = true;
@@ -451,6 +567,7 @@
     }
 
     function gradeChoiceSet() {
+      stopTimer();
       submitted = true;
 
       function getCorrectAnswer(sub, st) {
