@@ -145,3 +145,37 @@ h1 { font-size: 20px; }
 .choice-item { font-size: 14px; line-height: 1.7; }
 .choice-item img { max-width: 100%; }
 .choice-item label:hover { background: #f5f8fc; border-radius: 4px; }
+
+
+
+
+.ticket-list .item .move {
+  color: #4a90d9;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0 6px;
+  font-size: 15px;
+  user-select: none;
+}
+.ticket-list .item .move:hover { color: #2a6cb8; }
+
+
+
+.ticket-list .item .move {
+  color: #4a90d9;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0 6px;
+  font-size: 15px;
+  user-select: none;
+}
+.ticket-list .item .move:hover { color: #2a6cb8; }
+
+#timerBox {
+  font-size: 14px;
+  padding: 4px 10px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  white-space: nowrap;
+}
