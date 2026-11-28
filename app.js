@@ -1,4 +1,4 @@
-// app.js — 多用户登录 + 排序题 + 选择题组 + 限时开关 + localStorage 弱限制
+// app.js — 多用户登录 + 排序题 + 选择题组（含下拉/自动日期/自动打勾/图片下拉）+ 限时开关 + localStorage 弱限制
 (function () {
   'use strict';
 
@@ -28,7 +28,7 @@
   // 【第 2 处替换】练习界面密文：由新版 encrypt.html 用 CONTENT_KEY 加密
   // ============================================================
   const PRACTICE_ENCRYPTED = {
-  "salt": "Bl8ZOfhXquAOzJTgdypkEA==",
+ "salt": "Bl8ZOfhXquAOzJTgdypkEA==",
   "iv": "0mMrnD6PSPSXDHsd",
   "data": "Qgh27bmr3Jp/le1acE/+Cjuar91sfyB3IZGpvXQ6UNZqrlXYhORYXqt08ZqCtNgeLx6vAhNtgCpq/BppNAub1gwMwA/nmDRUCBW71JPC9Ni8bsCswKHX2u04/0HAeZEWvx5PZmRfUyDnAQ5CH8HxeC1f4rCm6zbJpMdN6YO17vFfMqr0eiNJuF6khPvTEAoj8D1VeU76LvLLzloMVPopEBlNMVCSRRchQkR7MYaluSM91r34LK5joigHvTx0Qpl04kMRq/JmkjWIuSRL+8KwgwEmb9T824m52emDjI0zn5tI83KHZgPNOmnW6q7mYILg6FAlfBhh60EKuSiR9cTICsFsUFw+QM2C4t5mNcjVoJiz08z8jfiaFsszltEyw+HgTmS7WsZwe91mcDR/0xfdh16NxXA7dTsR39Fp5j3VCoL1vawj1vocnouIGXhbNgPiRSGUn4i2y/ufDRjL5Gppo8fDEac+TwGmLpofPUmfBdbS9sg+EJkFwQiCoMhE0TM6YUeMFicqqbFY7EWwKeTGgisaaqrqZu7QBPwgRaL4l7uPEAl3KtJ8VYjjJ9GbyQovdLJxDTF+OMicB97NtaBnaqGMuYU2cdH7Nb8TBLYUrL+TDvCXfiDZWKAKB5qrCeLA53Ppf0vMSP1BeIEcIP2Z0cVL2+b//d6mkzG48F8KuS2odUE946QQ9SxWxim8xzaXxFwyrOetKNVUzdMLMyvOAp9INRf+NUFOIs2YjqCN7e13ZT0s4zhVQDzF9pMxrv+GmfcO87oHXtaO0f3ELazprst+NTYJSYvUN2allS0GK1JYCu5MOVaiqdSyac3KonGgbSVsFHZ7tXhPI7ZB3VAjWQLp2hoCNHdZQyFFxSkZkQRcvfivTZkhWlxCgMQxkePjF2qSPip9vPR5OEUmCGV8jza9iIg/sKKgjtK9y0x0Y0vANA4UptsA2KtHz4jNa0VsqK4MvcOqn3ueVueZK2pUAfsKQ8rOGNj5fMXQb+MCUK7B/piw35Xa+EcP+QUAeg0fuUbjTS4JzCbcS4LErEI6gRDM3zpnoZV81HBHYCu9JFU5css9UYfZm7BLQsQdBXwigQ+LPvZA0dSXOIx+etgoU/xtZlZOqk7brUXXc9xNVlJy3bVuNMdX1gVpM5mLEBHPtUDoWkDj8GSKsdUj0r9WaM1Hv3LD57crp8X27QU4XR8X3SYiF6YgbpykMigQstypUvPhPOJKuYLMdimU6pR8yPjo+5CnFbaQi8WYKVlqmhJwGxct68dVb4XJzq7dx2E3SnzwAXDTTnSCFiiej09JXdXSYWmbf1iM7N038FvyC7lLYeOnfeggU3WlV8xdXpncnLYFPrGA21dMQLu4FCcguhRaHKzlU6b6ng1yw2h51xxb40qup0f9th9Dy4o1HJHY84Nz0+BCgxg4QeLdE/Shfg=="
   };
@@ -109,27 +109,22 @@
   // ============================================================
   const LS_USER = 'ot_logged_user';
   const LS_TIME = 'ot_login_time';
-  const LOGIN_EXPIRE = 60 * 60 * 1000; // 1 小时过期
+  const LOGIN_EXPIRE = 60 * 60 * 1000; // 1 小时
 
   function checkExistingLogin() {
     const u = localStorage.getItem(LS_USER);
     const t = +localStorage.getItem(LS_TIME) || 0;
-    if (u && Date.now() - t < LOGIN_EXPIRE) {
-      return u;
-    }
-    // 过期则清除
+    if (u && Date.now() - t < LOGIN_EXPIRE) return u;
     if (u) {
       localStorage.removeItem(LS_USER);
       localStorage.removeItem(LS_TIME);
     }
     return null;
   }
-
   function markLogin(username) {
     localStorage.setItem(LS_USER, username);
     localStorage.setItem(LS_TIME, Date.now());
   }
-
   function clearLogin() {
     localStorage.removeItem(LS_USER);
     localStorage.removeItem(LS_TIME);
@@ -143,7 +138,6 @@
   const gatePwd = document.getElementById('gatePwd');
   const gateMsg = document.getElementById('gateMsg');
 
-  // 页面加载时检查是否已有登录
   const existing = checkExistingLogin();
   if (existing) {
     const gate = document.getElementById('gate');
@@ -157,7 +151,7 @@
       clearLogin();
       location.reload();
     });
-    return; // 不再绑定登录事件
+    return;
   }
 
   gateBtn.addEventListener('click', async () => {
@@ -182,9 +176,7 @@
       return;
     }
 
-    // 登录成功，写入 localStorage 标记
     markLogin(username);
-
     const unlocked = await unlockPractice();
     gateBtn.disabled = false;
     if (!unlocked) {
@@ -200,7 +192,7 @@
   });
 
   // ============================================================
-  // 练习逻辑（排序题 + 选择题组 + 限时开关）
+  // 练习逻辑
   // ============================================================
   function startApp() {
     let currentQ = null;
@@ -232,7 +224,7 @@
       return;
     }
 
-    // 绑定限时开关
+    // 限时开关
     const timerToggle = document.getElementById('timerToggle');
     if (timerToggle) {
       timerEnabled = timerToggle.checked;
@@ -241,7 +233,7 @@
         if (!timerEnabled) {
           stopTimer();
           const el = document.getElementById('timerBox');
-          if (el) { el.textContent = '限时已关闭'; el.style.color = '#888'; }
+          if (el) { el.textContent = '限时已关闭'; el.style.color = '#888'; el.style.fontWeight = 'normal'; }
         } else {
           startTimer();
         }
@@ -328,12 +320,16 @@
           const opts = Array.isArray(sub.options) ? sub.options : [];
           let optionOrder = opts.map((_, i) => i);
           if (sub.shuffleOptions !== false) optionOrder = shuffle([...optionOrder]);
-          const isMulti = sub.type && sub.type.indexOf('multi') !== -1;
-          return {
-            imgIndex,
-            optionOrder,
-            userAnswer: sub.noAnswer ? null : (isMulti ? [] : null)
-          };
+
+          let initAnswer;
+          if (sub.noAnswer) initAnswer = null;
+          else if (sub.type === 'date-auto') initAnswer = null;
+          else if (sub.type === 'check-auto') initAnswer = false;
+          else if (sub.type === 'select' || sub.type === 'image-select') initAnswer = null;
+          else if (sub.type && sub.type.indexOf('multi') !== -1) initAnswer = [];
+          else initAnswer = null;
+
+          return { imgIndex, optionOrder, userAnswer: initAnswer };
         });
         renderChoiceSet();
       } else {
@@ -450,16 +446,15 @@
         wrap.style.cssText = 'padding:14px 0;border-bottom:1px dashed #ddd;';
 
         const isNoAnswer = !!sub.noAnswer;
-        const isMulti = sub.type && sub.type.indexOf('multi') !== -1;
 
         const stem = document.createElement('div');
         stem.style.cssText = 'font-weight:bold;margin-bottom:8px;';
-        let stemText = `第 ${sub.no} 题`;
-        if (!isNoAnswer) stemText += `（${isMulti ? '多选' : '单选'}）`;
-        if (sub.stem) stemText += '：' + sub.stem;
+        let stemText = `第 ${sub.no} 题：`;
+        if (sub.stem) stemText += sub.stem;
         stem.textContent = stemText;
         wrap.appendChild(stem);
 
+        // 图片
         if (sub.type && sub.type.indexOf('image') === 0) {
           const imgs = Array.isArray(sub.images) ? sub.images : [];
           if (imgs.length) {
@@ -478,7 +473,76 @@
           }
         }
 
-        if (!isNoAnswer) {
+        // 下拉（select / image-select）
+        if (sub.type === 'select' || sub.type === 'image-select') {
+          const sel = document.createElement('select');
+          sel.style.cssText = 'padding:6px 10px;border:1px solid #ccc;border-radius:6px;font-size:14px;min-width:120px;';
+          const placeholder = document.createElement('option');
+          placeholder.value = '';
+          placeholder.textContent = '--请选择--';
+          sel.appendChild(placeholder);
+          st.optionOrder.forEach((origIdx) => {
+            const opt = document.createElement('option');
+            opt.value = origIdx;
+            opt.textContent = sub.options[origIdx];
+            sel.appendChild(opt);
+          });
+          sel.value = (st.userAnswer === null || st.userAnswer === undefined) ? '' : st.userAnswer;
+          sel.addEventListener('change', () => {
+            if (submitted) { sel.value = st.userAnswer === null ? '' : st.userAnswer; return; }
+            st.userAnswer = sel.value === '' ? null : +sel.value;
+          });
+          wrap.appendChild(sel);
+        }
+
+        // 自动日期
+        else if (sub.type === 'date-auto') {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'btn';
+          btn.style.cssText = 'padding:6px 14px;font-size:14px;';
+          btn.textContent = st.userAnswer ? st.userAnswer : '点击显示当天日期';
+          btn.addEventListener('click', () => {
+            if (submitted) return;
+            const d = new Date();
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            st.userAnswer = `${y}年${m}月${day}日`;
+            btn.textContent = st.userAnswer;
+          });
+          wrap.appendChild(btn);
+        }
+
+
+        // 自动打勾：空白长方形框，点击显示 ✓
+        else if (sub.type === 'check-auto') {
+          const boxEl = document.createElement('div');
+          boxEl.className = 'check-box';
+          boxEl.style.cssText = `
+            width: 120px; height: 40px;
+            border: 2px solid #4a90d9;
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; color: #34a853; font-weight: bold;
+            cursor: pointer; user-select: none;
+            background: ${st.userAnswer ? '#e6f7ea' : '#fff'};
+            transition: .15s;
+          `;
+          boxEl.textContent = st.userAnswer ? '✓' : '';
+          boxEl.addEventListener('click', () => {
+            if (submitted) return;
+            st.userAnswer = !st.userAnswer;
+            boxEl.textContent = st.userAnswer ? '✓' : '';
+            boxEl.style.background = st.userAnswer ? '#e6f7ea' : '#fff';
+          });
+          wrap.appendChild(boxEl);
+ 
+        }
+
+        // 单选/多选
+        else if (!isNoAnswer) {
+          const isMulti = sub.type && sub.type.indexOf('multi') !== -1;
           st.optionOrder.forEach((origIdx) => {
             const label = document.createElement('label');
             label.style.cssText = 'display:block;padding:6px 4px;cursor:pointer;';
@@ -570,9 +634,19 @@
       stopTimer();
       submitted = true;
 
+      function todayStr() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}年${m}月${day}日`;
+      }
+
       function getCorrectAnswer(sub, st) {
         const isImage = sub.type && sub.type.indexOf('image') === 0;
         const isMulti = sub.type && sub.type.indexOf('multi') !== -1;
+        if (sub.type === 'date-auto') return todayStr();
+        if (sub.type === 'check-auto') return true;
         if (isImage) {
           let correct;
           if (Array.isArray(sub.answer)) correct = sub.answer[st.imgIndex];
@@ -594,16 +668,26 @@
       const details = currentQ.subQuestions.map((sub, qi) => {
         if (sub.noAnswer) return { sub, skip: true };
         const st = choiceState[qi];
-        const isMulti = sub.type && sub.type.indexOf('multi') !== -1;
         const correctAns = getCorrectAnswer(sub, st);
         let ok = false;
-        if (isMulti) {
-          const ans = Array.isArray(correctAns) ? [...correctAns].sort() : [];
-          const user = [...st.userAnswer].sort();
-          ok = ans.length === user.length && ans.every((v, i) => v === user[i]);
-        } else {
+
+        if (sub.type === 'date-auto') {
           ok = st.userAnswer === correctAns;
+        } else if (sub.type === 'check-auto') {
+          ok = st.userAnswer === true;
+        } else if (sub.type === 'select' || sub.type === 'image-select') {
+          ok = st.userAnswer === correctAns;
+        } else {
+          const isMulti = sub.type && sub.type.indexOf('multi') !== -1;
+          if (isMulti) {
+            const ans = Array.isArray(correctAns) ? [...correctAns].sort() : [];
+            const user = [...st.userAnswer].sort();
+            ok = ans.length === user.length && ans.every((v, i) => v === user[i]);
+          } else {
+            ok = st.userAnswer === correctAns;
+          }
         }
+
         if (ok) rightCount++;
         return { sub, st, ok, correctAns };
       });
@@ -615,18 +699,32 @@
           html += `<div class="result-item"><div><strong>第 ${d.sub.no} 题：</strong>展示题，不计分</div></div>`;
           return;
         }
-        const { sub, ok, correctAns } = d;
-        const isMulti = sub.type && sub.type.indexOf('multi') !== -1;
-        let correctText;
-        if (isMulti) {
-          correctText = (Array.isArray(correctAns) ? correctAns : []).map((i) => sub.options[i]).join('、');
+        const { sub, st, ok, correctAns } = d;
+        let userText, correctText;
+
+        if (sub.type === 'date-auto') {
+          userText = st.userAnswer || '（未点击）';
+          correctText = correctAns;
+        } else if (sub.type === 'check-auto') {
+          userText = st.userAnswer ? '已勾选' : '（未勾选）';
+          correctText = '应勾选';
+        } else if (sub.type === 'select' || sub.type === 'image-select') {
+          userText = (st.userAnswer === null || st.userAnswer === undefined) ? '（未选择）' : sub.options[st.userAnswer];
+          correctText = sub.options[correctAns];
         } else {
-          correctText = (typeof correctAns === 'number' && correctAns >= 0 && sub.options && sub.options[correctAns] != null)
-            ? sub.options[correctAns] : '（数据缺失）';
+          const isMulti = sub.type && sub.type.indexOf('multi') !== -1;
+          if (isMulti) {
+            userText = (Array.isArray(st.userAnswer) ? st.userAnswer : []).map((i) => sub.options[i]).join('、') || '（未选）';
+            correctText = (Array.isArray(correctAns) ? correctAns : []).map((i) => sub.options[i]).join('、');
+          } else {
+            userText = (st.userAnswer === null || st.userAnswer === undefined) ? '（未选）' : sub.options[st.userAnswer];
+            correctText = (typeof correctAns === 'number' && correctAns >= 0 && sub.options[correctAns] != null) ? sub.options[correctAns] : '（数据缺失）';
+          }
         }
+
         html += `<div class="result-item ${ok ? 'ok' : 'bad'}">
           <div><strong>第 ${sub.no} 题：</strong>${ok ? '✅ 正确' : '❌ 错误'}</div>
-          ${ok ? '' : `<div class="expected">正确答案：${escapeHtml(correctText)}</div>`}
+          ${ok ? '' : `<div class="expected">你的答案：${escapeHtml(userText)}；正确答案：${escapeHtml(correctText)}</div>`}
         </div>`;
       });
       const box = document.getElementById('resultBox');
