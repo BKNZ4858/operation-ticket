@@ -21,7 +21,8 @@ const QUESTIONS = [
   },
 
 
-  {
+
+ {
     id: 'q002',
     title: 'K21-10KV考核1#线高压开关柜送电操作（开关柜）',
     description: '请按正确顺序选出操作项目',
@@ -46,7 +47,14 @@ const QUESTIONS = [
 
 
 
-  
+
+
+
+
+
+
+
+
 
 {
   id: 'q003',
@@ -241,11 +249,51 @@ const QUESTIONS = [
   noAnswer: true,
   images: ['images/q17-a.png']
 },
+
+
+   {
+      no: '17-1',
+      type: 'select',
+      stem: '设备编号：',
+      shuffleOptions: false,
+      options: ['#1', '#2', '#3', '#4'],
+      answer: 2   // 正确：#3（原始下标）
+    },
+  {
+      no: '17-2',
+      type: 'date-auto',
+      stem: '日期：'
+      // 无 answer，判分时自动与当天日期比对
+    },
+
+
+    {
+      no: '17-3',
+      type: 'check-auto',
+      stem: '设备外观：'
+    },
+
+
+    {
+      no: '17-4',
+      type: 'check-auto',
+      stem: '事故声光报警：'
+    },
+
+{
+      no: '17-5',
+      type: 'image-select',
+      stem: '请在【电压】下方的【备注】栏内选择：',
+      images: ['images/q22-a.png', 'images/q22-b.png'],
+      pickImage: 'random',
+      shuffleOptions: false,
+      options: ['过高', '过低'],
+      answer: [0, 1]   // 图A→过高(0)，图B→过低(1)
+    },
+
+
 ]
 },
-
-
-
 
 
 
