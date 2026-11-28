@@ -64,13 +64,13 @@ const QUESTIONS = [
   kind: 'choice-set',
   subQuestions: [
     // ===== 第1题：纯文字单选，选项【不打乱】 =====
-    {
+ {
       no: 1,
-      type: 'text-single',
-      stem: '请对出线柜进行检查，编号（   ）。',
+      type: 'select',
+      stem: '请对出线柜进行检查，编号：',
       shuffleOptions: false,
       options: ['#1', '#2', '#3', '#4'],
-      answer: 2   // 正确：#3
+      answer: 2   // 正确：#3（原始下标）
     },
 
     // ===== 第2题：4张图片随机抽1张作题干，4选项随机 =====
